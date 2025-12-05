@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var title : TextView
     private lateinit var layout : RelativeLayout
     private lateinit var popupLayout : LinearLayout
-
     private lateinit var settingsTitle : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", false)
 
-        //Uses shader to make the "TETRIS" part of the title different colors
+        //Uses shader to make the "TETRIS" part of the title different colors (something alternative to the rainbow effect)
         title = findViewById<TextView>(R.id.title)
         title.post {
             val width = title.paint.measureText("TETRIS")
@@ -82,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //Handles changing the image when toggled light/dark mode (two different images)
+    //Handles changing the image when toggling light/dark mode (two different images)
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
@@ -124,6 +123,7 @@ class MainActivity : AppCompatActivity() {
             switchGUI.setTextColor(Color.BLACK)
         }
 
+        //The popup is an alert box that contains the xml layout from popup_settings.xml
         val dialog = AlertDialog.Builder(this)
             .setView(view)
             .setCancelable(true)
