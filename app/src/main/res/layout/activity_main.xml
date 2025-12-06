@@ -1,19 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/title"
+        android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/title"
+        android:textStyle="bold"
+        android:textSize="50sp"
+        android:layout_marginTop="70dp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/border_title" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/logo_white"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/title"/>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/play_button"
+        android:layout_width="250dp"
+        android:text="@string/play"
+        android:layout_height="60dp"
+        android:layout_below="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:textSize="28sp"
+        android:textColor="@color/white"
+        android:background="@drawable/button_border_play"
+        app:backgroundTint="@null"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/player_best_level"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="Level: "
+        android:textSize="30sp"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/play_button"
+        android:background="@drawable/button_border"
+        android:textColor="@color/white"
+        app:backgroundTint="@null"
+
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/settings_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:text="@string/settings_title"
+        android:layout_below="@+id/player_best_level"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/button_border"
+        app:backgroundTint="@null" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/leaderboard_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:text="@string/leaderboard"
+        android:layout_below="@+id/player_best_level"
+        android:layout_toEndOf="@+id/settings_button"
+        android:layout_marginTop="50dp"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:background="@drawable/button_border"
+        app:backgroundTint="@null"
+        android:layout_marginStart="20dp" />
+
+
+
+
+
+</RelativeLayout>

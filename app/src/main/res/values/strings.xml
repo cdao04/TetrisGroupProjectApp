@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TetrisGroupProject</string>
+    <string name="settings_title">Settings</string>
+    <string name="enable_dark_mode">Enable Dark Mode: </string>
+    <string name="change_gui_size">Larger GUI: </string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="play">PLAY</string>
+    <string name="title">ANTI-GRAVITY TETRIS</string>
 </resources>
