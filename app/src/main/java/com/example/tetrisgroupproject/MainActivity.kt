@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", false)
 
-        //Uses shader to make the "TETRIS" part of the title different colors (something alternative to the rainbow effect)
         title = findViewById<TextView>(R.id.title)
         title.post {
             val width = title.paint.measureText("TETRIS")
@@ -66,22 +65,23 @@ class MainActivity : AppCompatActivity() {
             title.text = spannable
         }
 
-        //Initialize buttons
         playButton = findViewById(R.id.play_button)
         settingsButton = findViewById(R.id.settings_button)
         imageView = findViewById(R.id.logo)
         layout = findViewById(R.id.root_layout)
-        //changes background color and image if it's dark mode user opens app
         layout.setBackgroundColor(if (isDarkMode) Color.BLACK else Color.WHITE)
         imageView.setImageResource(if (isDarkMode) R.drawable.logo_dark else R.drawable.logo_white)
-        //When setting button is clicked, a pop up will show up
+        
+        playButton.setOnClickListener {
+            val intent = android.content.Intent(this, GameActivity::class.java)
+            startActivity(intent)
+        }
+        
         settingsButton.setOnClickListener {
-            //function that calls the pop up
             showSettingsPopup()
         }
     }
 
-    //Handles changing the image when toggling light/dark mode (two different images)
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
@@ -93,24 +93,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSettingsPopup() {
-        //turns XML into view so we can get the switches based on ids
         val view = layoutInflater.inflate(R.layout.popup_settings, null)
 
         val switchDark = view.findViewById<Switch>(R.id.switchDarkMode)
         val switchGUI = view.findViewById<Switch>(R.id.switchLargeGUI)
 
-        //Get references to the popup views
         popupLayout = view.findViewById<LinearLayout>(R.id.popup_layout)
         settingsTitle = view.findViewById<TextView>(R.id.settings_title)
 
-        //stores the setting preferences
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         val isDarkMode = prefs.getBoolean("darkMode", false)
 
         switchDark.isChecked = isDarkMode
         switchGUI.isChecked = prefs.getBoolean("largeGUI", false)
 
-        //Apply colors based on dark mode
         if (isDarkMode) {
             popupLayout.setBackgroundColor(Color.parseColor("#2C2C2C"))
             settingsTitle.setTextColor(Color.WHITE)
@@ -123,7 +119,6 @@ class MainActivity : AppCompatActivity() {
             switchGUI.setTextColor(Color.BLACK)
         }
 
-        //The popup is an alert box that contains the xml layout from popup_settings.xml
         val dialog = AlertDialog.Builder(this)
             .setView(view)
             .setCancelable(true)
@@ -131,13 +126,11 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
 
-        //when it switches to dark, it will change the background to black
         switchDark.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("darkMode", isChecked).apply()
             if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 layout.setBackgroundColor(Color.BLACK)
-                //Update popup colors immediately
                 popupLayout.setBackgroundColor(Color.parseColor("#2C2C2C"))
                 settingsTitle.setTextColor(Color.WHITE)
                 switchDark.setTextColor(Color.WHITE)
@@ -145,7 +138,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 layout.setBackgroundColor(Color.WHITE)
-                //Update popup colors immediately
                 popupLayout.setBackgroundColor(Color.WHITE)
                 settingsTitle.setTextColor(Color.BLACK)
                 switchDark.setTextColor(Color.BLACK)
@@ -153,7 +145,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //when user switches to a largerGUI (we can change this later)
         switchGUI.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("largeGUI", isChecked).apply()
         }

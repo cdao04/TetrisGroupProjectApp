@@ -3,8 +3,6 @@ package com.example.tetrisgroupproject
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 
-/* Class runs when the app starts. It sets the dark/light mode globally
-* across all activities. Still need to manually check if the switch is dark/light mode when modifying views*/
 class TetrisApplication : Application() {
     override fun onCreate() {
         super.onCreate()
