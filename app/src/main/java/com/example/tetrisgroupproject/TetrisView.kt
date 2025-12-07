@@ -13,6 +13,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
 
     private val paint = Paint()
     private val cellSize: Int
+    // Used for centering
     private val gridLeft: Int
     private val gridTop: Int
 

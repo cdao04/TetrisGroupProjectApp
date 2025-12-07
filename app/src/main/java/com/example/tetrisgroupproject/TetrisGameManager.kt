@@ -2,6 +2,7 @@ package com.example.tetrisgroupproject
 
 import android.content.Context
 
+// Class manages higher levle game logic such as spawning and placing blocks
 class TetrisGameManager(private val context: Context) {
 
     private val grid = TetrisGrid()

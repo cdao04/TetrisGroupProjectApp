@@ -2,6 +2,7 @@ package com.example.tetrisgroupproject
 
 import android.graphics.Color
 
+// Manages logic regarding the grid itself``
 class TetrisGrid {
     companion object {
         const val GRID_WIDTH = 10
@@ -81,14 +82,6 @@ class TetrisGrid {
 
     fun isCellEmpty(row: Int, col: Int): Boolean {
         return getCellColor(row, col) == EMPTY_CELL
-    }
-
-    fun clear() {
-        for (row in 0 until GRID_HEIGHT) {
-            for (col in 0 until GRID_WIDTH) {
-                grid[row][col] = EMPTY_CELL
-            }
-        }
     }
 
     // Copy is made to safely check collision
