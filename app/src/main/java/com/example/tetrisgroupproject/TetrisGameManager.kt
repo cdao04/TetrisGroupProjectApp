@@ -15,7 +15,6 @@ class TetrisGameManager(private val context: Context) {
     var onViewUpdate: (() -> Unit)? = null
 
     fun startNewGame() {
-        grid.clear()
         isGameOver = false
         
         spawnNewBlock()
