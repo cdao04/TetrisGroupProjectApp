@@ -1,6 +1,7 @@
 package com.example.tetrisgroupproject
 
 import android.content.Context
+import android.util.Log
 
 // Class manages higher levle game logic such as spawning and placing blocks
 class TetrisGameManager(private val context: Context) {
@@ -8,11 +9,26 @@ class TetrisGameManager(private val context: Context) {
     private val grid = TetrisGrid()
     private var currentBlock: Block? = null
     private var nextBlock: Block? = null
-    
+    private var score = 0
+    private var level = 1
+    private var rowsCleared = 0
     private var isGameOver: Boolean = false
-    
     var onGameOverCallback: (() -> Unit)? = null
     var onViewUpdate: (() -> Unit)? = null
+    var onRowCleared: (() -> Unit)? = null
+
+    companion object {
+        const val ROWS_PER_LEVEL = 10
+
+    }
+
+    fun getScore() : Int {
+        return score
+    }
+
+    fun getLevel() : Int {
+        return level
+    }
 
     fun startNewGame() {
         isGameOver = false
@@ -53,9 +69,40 @@ class TetrisGameManager(private val context: Context) {
     }
 
     private fun placeCurrentBlock() {
-        if (currentBlock == null) return
+        if (currentBlock == null) {
+            return
+        }
 
         grid.placeBlock(currentBlock!!)
+        score += 4      // Increase score by # of squares in block placed
+        // Log.w("MainActivity", "Score: " + score)
+
+        // Add scoring
+        var cleared = grid.clearFullRows()
+        if (cleared > 0) {
+            onRowCleared?.invoke()
+
+            // Check number of rows cleared; increment points based on that
+            if (cleared == 1) {
+                score += 100
+            } else if (cleared == 2) {
+                score += 300
+            } else if (cleared == 3) {
+                score += 500
+            } else if (cleared == 4) {
+                score += 800
+            } else {
+                score += 0
+            }
+            Log.w("MainActivity", "New score is: " + score)
+
+            rowsCleared += cleared
+            if (rowsCleared >= ROWS_PER_LEVEL) {
+                level++
+                rowsCleared = 0
+                Log.w("MainActivity", "New level is: " + level)
+            }
+        }
 
         if (grid.isGameOver()) {
             isGameOver = true
@@ -71,4 +118,39 @@ class TetrisGameManager(private val context: Context) {
     fun getCurrentBlock(): Block? = currentBlock
     fun getNextBlock(): Block? = nextBlock
     fun getGrid(): TetrisGrid = grid
+
+    // Get progress of level clear
+    fun getLevelProgress(): Float {
+        return rowsCleared / ROWS_PER_LEVEL.toFloat()
+    }
+
+    // Shift block to the left
+    fun moveLeft() {
+        var block = currentBlock ?: return
+        block.x--
+        if (grid.checkCollision(block)) {
+            block.x++
+        }
+        onViewUpdate?.invoke()
+    }
+
+    // Shift block to the right
+    fun moveRight() {
+        var block = currentBlock ?: return
+        block.x++
+        if (grid.checkCollision(block)) {
+            block.x--
+        }
+        onViewUpdate?.invoke()
+    }
+
+    // Rotate the block
+    fun rotate() {
+        val block = currentBlock ?: return
+        block.rotate()
+        if (grid.checkCollision(block)) block.rotateBack()
+        onViewUpdate?.invoke()
+    }
+
 }
+

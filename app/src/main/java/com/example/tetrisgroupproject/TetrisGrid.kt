@@ -96,4 +96,29 @@ class TetrisGrid {
         testBlock.moveUp()
         return !checkCollision(testBlock)
     }
+
+    // Clear rows when full; shifts rows up
+    fun clearFullRows(): Int {
+        var cleared = 0
+
+        var row = 0
+        while (row < GRID_HEIGHT) {
+            // If row is full, update blocks
+            if (grid[row].all { it != EMPTY_CELL }) {
+                cleared++
+
+                // Shift all rows below upward by one
+                for (r in row until GRID_HEIGHT - 1) {
+                    grid[r] = grid[r + 1].clone()
+                }
+
+                // Bottom-most row becomes empty
+                grid[GRID_HEIGHT - 1] = IntArray(GRID_WIDTH) { EMPTY_CELL }
+            } else {
+                row++
+            }
+        }
+
+        return cleared
+    }
 }

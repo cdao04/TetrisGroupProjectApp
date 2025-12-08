@@ -2,7 +2,7 @@ package com.example.tetrisgroupproject
 
 import android.graphics.Color
 
-class Block(val type: BlockType, var x: Int = 3, var y: Int = TetrisGrid.GRID_HEIGHT - 1) {
+class Block(val type: BlockType, var x: Int = 3, var y: Int = TetrisGrid.GRID_HEIGHT - 3) {
     var shape: Array<IntArray>
     var color: Int
 
@@ -25,6 +25,26 @@ class Block(val type: BlockType, var x: Int = 3, var y: Int = TetrisGrid.GRID_HE
 
     fun moveRight() {
         x += 1
+    }
+
+    fun rotate() {
+        val newShape = Array(4) { IntArray(4) }
+        for (r in 0 until 4) {
+            for (c in 0 until 4) {
+                newShape[c][3 - r] = shape[r][c]
+            }
+        }
+        shape = newShape
+    }
+
+    fun rotateBack() {
+        val newShape = Array(4) { IntArray(4) }
+        for (r in 0 until 4) {
+            for (c in 0 until 4) {
+                newShape[3 - c][r] = shape[r][c]
+            }
+        }
+        shape = newShape
     }
 
     fun copy(): Block {

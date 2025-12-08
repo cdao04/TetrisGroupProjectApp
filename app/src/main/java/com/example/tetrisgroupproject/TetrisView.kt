@@ -16,6 +16,11 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     // Used for centering
     private val gridLeft: Int
     private val gridTop: Int
+    private var textPaint = Paint().apply {
+        color = Color.WHITE
+        textSize = 65f
+        isAntiAlias = true
+    }
 
     init {
         paint.isAntiAlias = true
@@ -35,11 +40,13 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        // TODO edit to accommodate GUI theme change?
         canvas.drawColor(Color.BLACK)
         drawGridBorder(canvas)
         drawPlacedBlocks(canvas)
         drawCurrentBlock(canvas)
-        // TODO I think make function for score & level
+        drawScoreAndLevel(canvas)
+        drawProgressBar(canvas)
     }
 
     private fun drawGridBorder(canvas: Canvas) {
@@ -138,4 +145,67 @@ class TetrisView(context: Context, private val width: Int, private val height: I
             paint
         )
     }
+
+    private fun drawScoreAndLevel(canvas: Canvas) {
+        var score = game.getScore()
+        var level = game.getLevel()
+
+        var textY = (gridTop + cellSize * TetrisGrid.GRID_HEIGHT + 70).toFloat()
+
+        // Score appears on the left
+        var scoreX = gridLeft.toFloat()
+        canvas.drawText("Score: " + score, scoreX, textY, textPaint)
+
+        // Level appears on the right
+        var text = "Level: " + level
+        var textWidth = textPaint.measureText(text)
+        var levelX = (gridLeft + cellSize * TetrisGrid.GRID_WIDTH - textWidth)
+        canvas.drawText(text, levelX.toFloat(), textY, textPaint)
+    }
+
+    private fun drawProgressBar(canvas: Canvas) {
+        var progressBarPaint = Paint().apply {
+            color = Color.GREEN
+            isAntiAlias = true
+        }
+
+        var progressBarBackgroundPaint = Paint().apply {
+            color = Color.DKGRAY
+            isAntiAlias = true
+        }
+
+        val progress = game.getLevelProgress()  // 0.0 to 1.0
+
+        // Position
+        val barLeft = gridLeft.toFloat()
+        val barTop = (gridTop + cellSize * TetrisGrid.GRID_HEIGHT + 160).toFloat()
+        val barWidth = (cellSize * TetrisGrid.GRID_WIDTH).toFloat()
+        val barHeight = 40f
+
+        // Background
+        canvas.drawRect(
+            barLeft,
+            barTop,
+            barLeft + barWidth,
+            barTop + barHeight,
+            progressBarBackgroundPaint
+        )
+
+        // Filled portion
+        canvas.drawRect(
+            barLeft,
+            barTop,
+            barLeft + barWidth * progress,
+            barTop + barHeight,
+            progressBarPaint
+        )
+
+        // Label centered above the bar
+        val label = "Level Progress"
+        val textWidth = textPaint.measureText(label)
+        val labelX = barLeft + (barWidth - textWidth) / 2f
+        val labelY = barTop - 15f
+        canvas.drawText(label, labelX, labelY, textPaint)
+    }
+
 }
