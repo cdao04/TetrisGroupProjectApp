@@ -16,6 +16,7 @@ class TetrisGameManager(private val context: Context) {
     var onGameOverCallback: (() -> Unit)? = null
     var onViewUpdate: (() -> Unit)? = null
     var onRowCleared: (() -> Unit)? = null
+    var onLevelUp: (() -> Unit)? = null
 
     companion object {
         const val ROWS_PER_LEVEL = 10
@@ -28,6 +29,13 @@ class TetrisGameManager(private val context: Context) {
 
     fun getLevel() : Int {
         return level
+    }
+
+    fun getTickInterval(): Long {
+        val base = 900.0
+        val factor = 1.0 + (level * 0.5)    // increase speed by factor of half the level value
+        val interval = base / factor
+        return interval.toLong().coerceAtLeast(80L)
     }
 
     fun startNewGame() {
@@ -84,13 +92,13 @@ class TetrisGameManager(private val context: Context) {
 
             // Check number of rows cleared; increment points based on that
             if (cleared == 1) {
-                score += 100
+                score += (level * 100)
             } else if (cleared == 2) {
-                score += 300
+                score += (level * 300)
             } else if (cleared == 3) {
-                score += 500
+                score += (level * 500)
             } else if (cleared == 4) {
-                score += 800
+                score += (level * 800)
             } else {
                 score += 0
             }
@@ -98,8 +106,9 @@ class TetrisGameManager(private val context: Context) {
 
             rowsCleared += cleared
             if (rowsCleared >= ROWS_PER_LEVEL) {
+                rowsCleared -= ROWS_PER_LEVEL
                 level++
-                rowsCleared = 0
+                onLevelUp?.invoke()
                 Log.w("MainActivity", "New level is: " + level)
             }
         }
@@ -148,7 +157,9 @@ class TetrisGameManager(private val context: Context) {
     fun rotate() {
         val block = currentBlock ?: return
         block.rotate()
-        if (grid.checkCollision(block)) block.rotateBack()
+        if (grid.checkCollision(block)) {
+            block.rotateBack()
+        }
         onViewUpdate?.invoke()
     }
 

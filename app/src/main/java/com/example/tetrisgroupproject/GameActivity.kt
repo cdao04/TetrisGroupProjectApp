@@ -53,10 +53,10 @@ class GameActivity : AppCompatActivity() {
             tetrisView.postInvalidate()
         }
 
-        // TODO manipulate timer based on score or level
         task = TetrisTimerTask(this)
         timer = Timer()
-        timer.schedule(task, DELTA_TIME, DELTA_TIME)
+        var speed = game.getTickInterval()
+        timer.schedule(task, speed, speed)
 
         // Initialize vibrator
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -69,14 +69,17 @@ class GameActivity : AppCompatActivity() {
         // Vibrate when row cleared
         game.onRowCleared = {vibrateRowClear()}
 
+        // Restart the timer when a new level starts
+        game.onLevelUp = {
+            restartTimer()
+        }
+
+        // TODO change view to end screen when game is done
+
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null) return false
-        if (game.isGameOver()) {
-            // TODO change view to end screen
-
-        }
 
         val screenWidth = resources.displayMetrics.widthPixels
         val cellWidth = screenWidth / TetrisGrid.GRID_WIDTH
@@ -127,6 +130,27 @@ class GameActivity : AppCompatActivity() {
         tetrisView.postInvalidate()
     }
 
+    private fun vibrateRowClear() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val effect = VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(effect)
+        } else {
+            vibrator.vibrate(80)
+        }
+        Log.w("MainActivity", "Vibrating")
+    }
+
+    private fun restartTimer() {
+        timer.cancel()
+        timer.purge()
+
+        task = TetrisTimerTask(this)
+        timer = Timer()
+
+        val speed = game.getTickInterval()
+        timer.schedule(task, speed, speed)
+    }
+
     override fun onPause() {
         super.onPause()
         stopTimer()
@@ -147,13 +171,4 @@ class GameActivity : AppCompatActivity() {
         stopTimer()
     }
 
-    private fun vibrateRowClear() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val effect = VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE)
-            vibrator.vibrate(effect)
-        } else {
-            vibrator.vibrate(80)
-        }
-        Log.w("MainActivity", "Vibrating")
-    }
 }
