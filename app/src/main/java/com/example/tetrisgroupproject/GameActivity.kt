@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -28,16 +30,17 @@ class GameActivity : AppCompatActivity() {
     private lateinit var game: TetrisGameManager
     private lateinit var timer: Timer
     private lateinit var task: TetrisTimerTask
-    private lateinit var vibrator : Vibrator
+    private lateinit var vibrator: Vibrator
     private var lastDragX: Float? = null
     private var hasDragged = false
 
     //Database Additions:
-    private lateinit var firebase : FirebaseDatabase
-    private lateinit var leaderboard : DatabaseReference
+    private lateinit var firebase: FirebaseDatabase
+    private lateinit var leaderboard: DatabaseReference
 
     //For Ad
-    private var ad : InterstitialAd? = null
+    private var ad: InterstitialAd? = null
+    private var isAdLoaded = false
 
     companion object {
         const val DELTA_TIME: Long = 500
@@ -62,50 +65,48 @@ class GameActivity : AppCompatActivity() {
         game.startNewGame()
 
         game.onGameOverCallback = {
-            stopTimer()
+            runOnUiThread {
+                stopTimer()
 
-            //Now for the popup after the game is done
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Game Over")
-            builder.setMessage("Enter your name to save your score:")
+                //Now for the popup after the game is done
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Game Over")
+                builder.setMessage("Enter your name to save your score:")
 
-            val input = EditText(this)
-            builder.setView(input)
+                val input = EditText(this)
+                builder.setView(input)
 
-            val score = game.getScore()
-            val level = game.getLevel()
+                val score = game.getScore()
+                val level = game.getLevel()
 
-            builder.setPositiveButton("OK") { dialog, which ->
-                val name = input.text.toString()
+                builder.setPositiveButton("OK") { dialog, which ->
+                    dialog.dismiss()
+                    val name = input.text.toString()
+                    scoreToDatabase(name, score, level)
 
-                if (ad != null) {
-                    ad?.show(this)
+                    showInterstitialAd{
+                        val intent = Intent(this, EndActivity::class.java)
+                        intent.putExtra("name", name)
+                        intent.putExtra("score", score)
+                        intent.putExtra("level", level)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+                builder.setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                    showInterstitialAd{
+                        val intent = Intent(this, EndActivity::class.java)
+                        intent.putExtra("name", "")
+                        intent.putExtra("score", score)
+                        intent.putExtra("level", level)
+                        startActivity(intent)
+                        finish()
+                    }
                 }
 
-                scoreToDatabase(name, score, level)
-
-                val intent = Intent(this, EndActivity::class.java)
-                intent.putExtra("name", name)
-                intent.putExtra("score", score)
-                intent.putExtra("level", level)
-
-                startActivity(intent)
-                finish()
+                builder.show()
             }
-            builder.setNegativeButton("Cancel"){ dialog, which ->
-                if(ad != null){
-                    ad?.show(this)
-                }
-
-                val intent = Intent(this, EndActivity::class.java)
-                intent.putExtra("name", "")
-                intent.putExtra("score", score)
-                intent.putExtra("level", level)
-                startActivity(intent)
-                finish()
-            }
-
-            builder.show()
         }
 
         game.onViewUpdate = {
@@ -126,7 +127,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         // Vibrate when row cleared
-        game.onRowCleared = {vibrateRowClear()}
+        game.onRowCleared = { vibrateRowClear() }
 
         // Restart the timer when a new level starts
         game.onLevelUp = {
@@ -240,7 +241,7 @@ class GameActivity : AppCompatActivity() {
    database, assuming no errors (might add)
     */
 
-    fun scoreToDatabase(name: String, score: Int, level: Int){
+    fun scoreToDatabase(name: String, score: Int, level: Int) {
         val player = leaderboard.child(name)
 
         player.child("score").setValue(score)
@@ -253,12 +254,12 @@ class GameActivity : AppCompatActivity() {
 
     private fun loadInterstitialAd(){
         val builder = AdRequest.Builder()
-        builder.addKeyword("gaming")
-        var request: AdRequest = builder.build()
+        val request = builder.build()
 
-        var adUnitId = "ca-app-pub-3940256099942544/1033173712"
+        val adUnitId = "ca-app-pub-3940256099942544/1033173712"
 
-        InterstitialAd.load(this, adUnitId, request,
+        InterstitialAd.load(
+            this, adUnitId, request,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(adLoaded: InterstitialAd) {
                     ad = adLoaded
@@ -269,4 +270,25 @@ class GameActivity : AppCompatActivity() {
                 }
             })
     }
+    private fun showInterstitialAd(startEndActivity: () -> Unit){
+        if(ad != null){
+            ad?.fullScreenContentCallback = object : FullScreenContentCallback(){
+                override fun onAdDismissedFullScreenContent(){
+                    ad = null
+                    loadInterstitialAd()
+                    startEndActivity()
+                }
+                override fun onAdFailedToShowFullScreenContent(p0: AdError){
+                    ad = null
+                    loadInterstitialAd()
+                    startEndActivity()
+                }
+            }
+            ad?.show(this)
+        }else{
+            loadInterstitialAd()
+            startEndActivity()
+        }
+    }
+
 }

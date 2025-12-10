@@ -50,6 +50,7 @@ class TetrisGameManager(private val context: Context) {
         spawnNextBlock()
         
         if (grid.checkCollision(currentBlock!!)) {
+            Log.d("TEST", "COLLISION ON SPAWN -> GAME OVER")
             isGameOver = true
             onGameOverCallback?.invoke()
         }

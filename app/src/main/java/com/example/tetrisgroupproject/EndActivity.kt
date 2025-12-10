@@ -52,13 +52,13 @@ class EndActivity : AppCompatActivity() {
 
         query.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
-                val list = p0.children.toList()
-                var index = 5
+                val list = p0.children.toList().reversed()
+                var index = 1
 
-                for(i in list.indices.reversed()){
-                    val name = list[i].key
-                    val score = list[i].child("score").value.toString()
-                    val level = list[i].child("level").value.toString()
+                for(i in list){
+                    val name = i.key
+                    val score = i.child("score").value.toString()
+                    val level = i.child("level").value.toString()
 
                     //Maybe change if need be? Cant do findViewById... because the name doesn't
                     //work dynamically
@@ -69,12 +69,7 @@ class EndActivity : AppCompatActivity() {
                     findViewById<TextView>(nameId).text = name.toString()
                     findViewById<TextView>(scoreId).text = score
                     findViewById<TextView>(levelId).text = level
-                    index--
-
-                    if(index == 0){
-                        break
-                    }
-
+                    index++
                 }
             }
 
