@@ -174,13 +174,13 @@ class TetrisView(context: Context, private val width: Int, private val height: I
             isAntiAlias = true
         }
 
-        val progress = game.getLevelProgress()  // 0.0 to 1.0
+        var progress = game.getLevelProgress()  // 0.0 to 1.0
 
         // Position
-        val barLeft = gridLeft.toFloat()
-        val barTop = (gridTop + cellSize * TetrisGrid.GRID_HEIGHT + 160).toFloat()
-        val barWidth = (cellSize * TetrisGrid.GRID_WIDTH).toFloat()
-        val barHeight = 40f
+        var barLeft = gridLeft.toFloat()
+        var barTop = (gridTop + cellSize * TetrisGrid.GRID_HEIGHT + 160).toFloat()
+        var barWidth = (cellSize * TetrisGrid.GRID_WIDTH).toFloat()
+        var barHeight = 40f
 
         // Background
         canvas.drawRect(
@@ -201,10 +201,10 @@ class TetrisView(context: Context, private val width: Int, private val height: I
         )
 
         // Label centered above the bar
-        val label = "Level Progress"
-        val textWidth = textPaint.measureText(label)
-        val labelX = barLeft + (barWidth - textWidth) / 2f
-        val labelY = barTop - 15f
+        var label = "Level Progress"
+        var textWidth = textPaint.measureText(label)
+        var labelX = barLeft + (barWidth - textWidth) / 2f
+        var labelY = barTop - 15f
         canvas.drawText(label, labelX, labelY, textPaint)
     }
 
