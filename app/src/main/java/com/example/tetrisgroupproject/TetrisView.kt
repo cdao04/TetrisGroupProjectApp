@@ -1,7 +1,6 @@
 package com.example.tetrisgroupproject
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -11,8 +10,6 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     companion object {
         private const val GRID_PADDING = 50
     }
-    val prefs = context.getSharedPreferences("settings", MODE_PRIVATE)
-    val isDarkMode = prefs.getBoolean("darkMode", false)
 
     private val paint = Paint()
     private val cellSize: Int
@@ -20,11 +17,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     private val gridLeft: Int
     private val gridTop: Int
     private var textPaint = Paint().apply {
-        if(isDarkMode){
-            color = Color.WHITE
-        }else{
-            color = Color.BLACK
-        }
+        color = Color.WHITE
         textSize = 65f
         isAntiAlias = true
     }
@@ -48,12 +41,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
         super.onDraw(canvas)
 
         // TODO edit to accommodate GUI theme change?
-        if(isDarkMode){
-            canvas.drawColor(Color.BLACK)
-        }else{
-            canvas.drawColor(Color.WHITE)
-        }
-
+        canvas.drawColor(Color.BLACK)
         drawGridBorder(canvas)
         drawPlacedBlocks(canvas)
         drawCurrentBlock(canvas)
@@ -66,13 +54,8 @@ class TetrisView(context: Context, private val width: Int, private val height: I
         
         val right = gridLeft + (cellSize * TetrisGrid.GRID_WIDTH)
         val bottom = gridTop + (cellSize * TetrisGrid.GRID_HEIGHT)
-
-        if(isDarkMode){
-            paint.color = Color.WHITE
-        }else{
-            paint.color = Color.BLACK
-        }
-
+        
+        paint.color = Color.WHITE
         paint.strokeWidth = 8f
         canvas.drawRect(
             gridLeft.toFloat(),
@@ -81,12 +64,8 @@ class TetrisView(context: Context, private val width: Int, private val height: I
             bottom.toFloat(),
             paint
         )
-        if(isDarkMode){
-            paint.color = Color.argb(60, 255, 255, 255)
-        }else{
-            paint.color = Color.argb(70, 119,119,119)
-        }
-
+        
+        paint.color = Color.argb(60, 255, 255, 255)
         paint.strokeWidth = 1f
         
         for (col in 1 until TetrisGrid.GRID_WIDTH) {

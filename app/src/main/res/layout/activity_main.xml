@@ -48,6 +48,7 @@
         android:id="@+id/player_best_level"
         android:layout_width="250dp"
         android:layout_height="60dp"
+        android:text="Level: "
         android:textSize="30sp"
         android:layout_gravity="center"
         android:layout_centerHorizontal="true"

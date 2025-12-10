@@ -6,10 +6,4 @@
     <string name="leaderboard">Leaderboard</string>
     <string name="play">PLAY</string>
     <string name="title">ANTI-GRAVITY TETRIS</string>
-    <string name="gui_size">GUI Size: </string>
-    <string-array name="spinnerSwitchGUI">
-        <item>Small</item>
-        <item>Large</item>
-    </string-array>
-
 </resources>

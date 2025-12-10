@@ -23,31 +23,12 @@
         android:layout_height="wrap_content"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <Switch
+        android:id="@+id/switchLargeGUI"
+        android:text="@string/change_gui_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/spinner_title"
-            android:text="@string/gui_size"
-            android:textSize="15sp"
-            android:layout_marginBottom="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:color="@color/black"/>
-
-
-        <Spinner
-            android:id="@+id/spinnerSwitchGUI"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown"
-            android:textSize="12sp"/>
-
-    </LinearLayout>
-
-
+        android:layout_marginTop="12dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml"/>
 
 </LinearLayout>

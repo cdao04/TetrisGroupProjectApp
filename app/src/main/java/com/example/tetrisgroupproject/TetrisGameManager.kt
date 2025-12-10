@@ -6,7 +6,6 @@ import android.util.Log
 // Class manages higher levle game logic such as spawning and placing blocks
 class TetrisGameManager(private val context: Context) {
 
-    private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     private val grid = TetrisGrid()
     private var currentBlock: Block? = null
     private var nextBlock: Block? = null
@@ -110,7 +109,6 @@ class TetrisGameManager(private val context: Context) {
                 rowsCleared -= ROWS_PER_LEVEL
                 level++
                 onLevelUp?.invoke()
-                saveLevel()  // <-- save level whenever it increases
                 Log.w("MainActivity", "New level is: " + level)
             }
         }
@@ -164,15 +162,6 @@ class TetrisGameManager(private val context: Context) {
         }
         onViewUpdate?.invoke()
     }
-    private fun saveLevel() {
-        prefs.edit().putInt("level", level).apply()
-    }
-
-    fun loadLevel(): Int {
-        level = prefs.getInt("level", 1)  // default level = 1
-        return level
-    }
-
 
 }
 
