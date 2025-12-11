@@ -3,6 +3,7 @@ package com.example.tetrisgroupproject
 import android.app.DownloadManager
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,13 +22,21 @@ class EndActivity : AppCompatActivity() {
         setContentView(R.layout.activity_end)
 
         val name = intent.getStringExtra("name")
-        val score = intent.getIntExtra("score", 0)
-        val level = intent.getIntExtra("level", 1)
+        val score = intent.getIntExtra("score", -1)
+        val level = intent.getIntExtra("level", -1)
 
-        val displayGameData = findViewById<TextView>(R.id.displayGameData)
+        val nameDisplay = findViewById<TextView>(R.id.nameDisplay)
+        val scoreDisplay = findViewById<TextView>(R.id.scoreDisplay)
+        val levelDisplay = findViewById<TextView>(R.id.levelDisplay)
 
-        val resultText = "Name: $name\nScore: $score\nLevel: $level"
-        displayGameData.text = resultText
+        if(name == null || score == -1 || level == -1){
+            nameDisplay.visibility = View.GONE
+            scoreDisplay.visibility = View.GONE
+            levelDisplay.visibility = View.GONE
+        }
+        nameDisplay.text = "Name: $name"
+        scoreDisplay.text = "Score: $score"
+        levelDisplay.text = "Level: $level"
 
         //Take Care of Play Again and Main Menu Buttons
         findViewById<Button>(R.id.main_menu_button).setOnClickListener{
@@ -66,9 +75,10 @@ class EndActivity : AppCompatActivity() {
                     val scoreId = resources.getIdentifier("r${index}_score", "id", packageName)
                     val levelId = resources.getIdentifier("r${index}_level", "id", packageName)
 
-                    findViewById<TextView>(nameId).text = name.toString()
+                    findViewById<TextView>(nameId).text = "$index. $name"
                     findViewById<TextView>(scoreId).text = score
                     findViewById<TextView>(levelId).text = level
+
                     index++
                 }
             }

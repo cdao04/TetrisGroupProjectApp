@@ -97,7 +97,7 @@ class GameActivity : AppCompatActivity() {
                     dialog.dismiss()
                     showInterstitialAd{
                         val intent = Intent(this, EndActivity::class.java)
-                        intent.putExtra("name", "")
+                        intent.putExtra("name", "Anonymous")
                         intent.putExtra("score", score)
                         intent.putExtra("level", level)
                         startActivity(intent)
