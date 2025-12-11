@@ -13,6 +13,8 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     }
     val prefs = context.getSharedPreferences("settings", MODE_PRIVATE)
     val isDarkMode = prefs.getBoolean("darkMode", false)
+    val guiSize = prefs.getString("guiSize", "Small")
+    val largeGUI = guiSize == "Large"
 
     private val paint = Paint()
     private val cellSize: Int
@@ -33,21 +35,43 @@ class TetrisView(context: Context, private val width: Int, private val height: I
         paint.isAntiAlias = true
 
         val availableWidth = width - (2 * GRID_PADDING)
-        val availableHeight = height - (2 * GRID_PADDING) - 200
+        val availableHeight =
+            if (largeGUI) {
+                (height * 0.90f).toInt()
+            } else {
+                (height * 0.75f).toInt()
+            }
 
-        cellSize = minOf(
+        val baseCell = minOf(
             availableWidth / TetrisGrid.GRID_WIDTH,
             availableHeight / TetrisGrid.GRID_HEIGHT
         )
 
+        // Large GUI keeps current cellSize; Small GUI reduces cell size ↓
+        val scaled =
+            if (largeGUI) {
+                baseCell   // leave as-is for large GUI
+            } else {
+                (baseCell * 0.90f).toInt()  // reduce size for small GUI
+            }
+
+        cellSize = minOf(
+            scaled,
+            availableHeight / TetrisGrid.GRID_HEIGHT
+        )
+
         gridLeft = (width - (cellSize * TetrisGrid.GRID_WIDTH)) / 2
-        gridTop = GRID_PADDING + 100
+        gridTop =
+            if (largeGUI) {
+                GRID_PADDING + 40
+            } else {
+                GRID_PADDING + 80
+            }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        // TODO edit to accommodate GUI theme change?
         if(isDarkMode){
             canvas.drawColor(Color.BLACK)
         }else{
