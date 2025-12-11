@@ -10,4 +10,9 @@
     <string name="play_again">PLAY AGAIN?</string>
     <string name="main_menu">MAIN MENU</string>
     <string name="end_leaderboard">Top 5 Leaderboard</string>
+    <string name="gui_size">GUI Size: </string>
+    <string-array name="spinnerSwitchGUI">
+        <item>Small</item>
+        <item>Large</item>
+    </string-array>
 </resources>

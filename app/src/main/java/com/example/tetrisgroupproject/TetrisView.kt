@@ -1,6 +1,7 @@
 package com.example.tetrisgroupproject
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -10,6 +11,8 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     companion object {
         private const val GRID_PADDING = 50
     }
+    val prefs = context.getSharedPreferences("settings", MODE_PRIVATE)
+    val isDarkMode = prefs.getBoolean("darkMode", false)
 
     private val paint = Paint()
     private val cellSize: Int
@@ -17,7 +20,11 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     private val gridLeft: Int
     private val gridTop: Int
     private var textPaint = Paint().apply {
-        color = Color.WHITE
+        if(isDarkMode){
+            color = Color.WHITE
+        }else{
+            color = Color.BLACK
+        }
         textSize = 65f
         isAntiAlias = true
     }
@@ -27,12 +34,12 @@ class TetrisView(context: Context, private val width: Int, private val height: I
 
         val availableWidth = width - (2 * GRID_PADDING)
         val availableHeight = height - (2 * GRID_PADDING) - 200
-        
+
         cellSize = minOf(
             availableWidth / TetrisGrid.GRID_WIDTH,
             availableHeight / TetrisGrid.GRID_HEIGHT
         )
-        
+
         gridLeft = (width - (cellSize * TetrisGrid.GRID_WIDTH)) / 2
         gridTop = GRID_PADDING + 100
     }
@@ -41,7 +48,12 @@ class TetrisView(context: Context, private val width: Int, private val height: I
         super.onDraw(canvas)
 
         // TODO edit to accommodate GUI theme change?
-        canvas.drawColor(Color.BLACK)
+        if(isDarkMode){
+            canvas.drawColor(Color.BLACK)
+        }else{
+            canvas.drawColor(Color.WHITE)
+        }
+
         drawGridBorder(canvas)
         drawPlacedBlocks(canvas)
         drawCurrentBlock(canvas)
@@ -51,11 +63,16 @@ class TetrisView(context: Context, private val width: Int, private val height: I
 
     private fun drawGridBorder(canvas: Canvas) {
         paint.style = Paint.Style.STROKE
-        
+
         val right = gridLeft + (cellSize * TetrisGrid.GRID_WIDTH)
         val bottom = gridTop + (cellSize * TetrisGrid.GRID_HEIGHT)
-        
-        paint.color = Color.WHITE
+
+        if(isDarkMode){
+            paint.color = Color.WHITE
+        }else{
+            paint.color = Color.BLACK
+        }
+
         paint.strokeWidth = 8f
         canvas.drawRect(
             gridLeft.toFloat(),
@@ -64,10 +81,14 @@ class TetrisView(context: Context, private val width: Int, private val height: I
             bottom.toFloat(),
             paint
         )
-        
-        paint.color = Color.argb(60, 255, 255, 255)
+        if(isDarkMode){
+            paint.color = Color.argb(60, 255, 255, 255)
+        }else{
+            paint.color = Color.argb(70, 119,119,119)
+        }
+
         paint.strokeWidth = 1f
-        
+
         for (col in 1 until TetrisGrid.GRID_WIDTH) {
             val x = gridLeft + (col * cellSize)
             canvas.drawLine(
@@ -78,7 +99,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
                 paint
             )
         }
-        
+
         for (row in 1 until TetrisGrid.GRID_HEIGHT) {
             val y = gridTop + (row * cellSize)
             canvas.drawLine(
@@ -93,7 +114,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
 
     private fun drawPlacedBlocks(canvas: Canvas) {
         paint.style = Paint.Style.FILL
-        
+
         for (row in 0 until TetrisGrid.GRID_HEIGHT) {
             for (col in 0 until TetrisGrid.GRID_WIDTH) {
                 val cellColor = game.getGrid().getCellColor(row, col)
@@ -106,10 +127,10 @@ class TetrisView(context: Context, private val width: Int, private val height: I
 
     private fun drawCurrentBlock(canvas: Canvas) {
         val block = game.getCurrentBlock() ?: return
-        
+
         paint.style = Paint.Style.FILL
         paint.color = block.color
-        
+
         // Transform block coordinates to the live game
         val cells = block.getOccupiedCells()
 
@@ -123,7 +144,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
     private fun drawCell(canvas: Canvas, row: Int, col: Int, color: Int) {
         val left = gridLeft + (col * cellSize)
         val top = gridTop + (row * cellSize)
-        
+
         paint.color = color
         paint.style = Paint.Style.FILL
         canvas.drawRect(
@@ -133,7 +154,7 @@ class TetrisView(context: Context, private val width: Int, private val height: I
             (top + cellSize).toFloat() - 2,
             paint
         )
-        
+
         paint.color = Color.BLACK
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 2f
