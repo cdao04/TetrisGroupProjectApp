@@ -6,4 +6,8 @@
     <string name="leaderboard">Leaderboard</string>
     <string name="play">PLAY</string>
     <string name="title">ANTI-GRAVITY TETRIS</string>
+
+    <string name="play_again">PLAY AGAIN?</string>
+    <string name="main_menu">MAIN MENU</string>
+    <string name="end_leaderboard">Top 5 Leaderboard</string>
 </resources>

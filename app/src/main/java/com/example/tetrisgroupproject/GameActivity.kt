@@ -1,6 +1,8 @@
 package com.example.tetrisgroupproject
 
 import android.content.Context
+import android.content.Intent
+import com.google.android.gms.ads.AdRequest
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -8,10 +10,19 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
 import android.view.MotionEvent
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import java.util.Timer
 
 class GameActivity : AppCompatActivity() {
@@ -19,9 +30,17 @@ class GameActivity : AppCompatActivity() {
     private lateinit var game: TetrisGameManager
     private lateinit var timer: Timer
     private lateinit var task: TetrisTimerTask
-    private lateinit var vibrator : Vibrator
+    private lateinit var vibrator: Vibrator
     private var lastDragX: Float? = null
     private var hasDragged = false
+
+    //Database Additions:
+    private lateinit var firebase: FirebaseDatabase
+    private lateinit var leaderboard: DatabaseReference
+
+    //For Ad
+    private var ad: InterstitialAd? = null
+    private var isAdLoaded = false
 
     companion object {
         const val DELTA_TIME: Long = 500
@@ -29,8 +48,8 @@ class GameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val windowInsetsController: WindowInsetsControllerCompat = 
+
+        val windowInsetsController: WindowInsetsControllerCompat =
             WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
@@ -39,16 +58,57 @@ class GameActivity : AppCompatActivity() {
         val height = resources.displayMetrics.heightPixels
 
         game = TetrisGameManager(this)
-        
+
         tetrisView = TetrisView(this, width, height, game)
         setContentView(tetrisView)
-        
+
         game.startNewGame()
 
         game.onGameOverCallback = {
-            stopTimer()
+            runOnUiThread {
+                stopTimer()
+
+                //Now for the popup after the game is done
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Game Over")
+                builder.setMessage("Enter your name to save your score:")
+
+                val input = EditText(this)
+                builder.setView(input)
+
+                val score = game.getScore()
+                val level = game.getLevel()
+
+                builder.setPositiveButton("OK") { dialog, which ->
+                    dialog.dismiss()
+                    val name = input.text.toString()
+                    scoreToDatabase(name, score, level)
+
+                    showInterstitialAd{
+                        val intent = Intent(this, EndActivity::class.java)
+                        intent.putExtra("name", name)
+                        intent.putExtra("score", score)
+                        intent.putExtra("level", level)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+                builder.setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                    showInterstitialAd{
+                        val intent = Intent(this, EndActivity::class.java)
+                        intent.putExtra("name", "Anonymous")
+                        intent.putExtra("score", score)
+                        intent.putExtra("level", level)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
+
+                builder.show()
+            }
         }
-        
+
         game.onViewUpdate = {
             tetrisView.postInvalidate()
         }
@@ -67,7 +127,7 @@ class GameActivity : AppCompatActivity() {
         }
 
         // Vibrate when row cleared
-        game.onRowCleared = {vibrateRowClear()}
+        game.onRowCleared = { vibrateRowClear() }
 
         // Restart the timer when a new level starts
         game.onLevelUp = {
@@ -75,7 +135,12 @@ class GameActivity : AppCompatActivity() {
         }
 
         // TODO change view to end screen when game is done
+        //Initialize Firebase
+        firebase = FirebaseDatabase.getInstance()
+        leaderboard = firebase.getReference("leaderboard")
 
+        //Load the Ad
+        loadInterstitialAd()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -169,6 +234,61 @@ class GameActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopTimer()
+    }
+
+    /*
+   When the user wants their score saved, we write it to the
+   database, assuming no errors (might add)
+    */
+
+    fun scoreToDatabase(name: String, score: Int, level: Int) {
+        val player = leaderboard.child(name)
+
+        player.child("score").setValue(score)
+        player.child("level").setValue(level)
+    }
+
+    /*
+    Show ad after the game is finished, then go to the end view
+     */
+
+    private fun loadInterstitialAd(){
+        val builder = AdRequest.Builder()
+        val request = builder.build()
+
+        val adUnitId = "ca-app-pub-3940256099942544/1033173712"
+
+        InterstitialAd.load(
+            this, adUnitId, request,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(adLoaded: InterstitialAd) {
+                    ad = adLoaded
+                }
+
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    ad = null
+                }
+            })
+    }
+    private fun showInterstitialAd(startEndActivity: () -> Unit){
+        if(ad != null){
+            ad?.fullScreenContentCallback = object : FullScreenContentCallback(){
+                override fun onAdDismissedFullScreenContent(){
+                    ad = null
+                    loadInterstitialAd()
+                    startEndActivity()
+                }
+                override fun onAdFailedToShowFullScreenContent(p0: AdError){
+                    ad = null
+                    loadInterstitialAd()
+                    startEndActivity()
+                }
+            }
+            ad?.show(this)
+        }else{
+            loadInterstitialAd()
+            startEndActivity()
+        }
     }
 
 }

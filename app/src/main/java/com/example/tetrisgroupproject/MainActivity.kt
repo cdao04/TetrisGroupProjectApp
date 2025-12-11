@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatDelegate
 class MainActivity : AppCompatActivity() {
     private lateinit var playButton : Button
     private lateinit var settingsButton : Button
+    private lateinit var leaderboardButton : Button
     private lateinit var imageView : ImageView
     private lateinit var title : TextView
     private lateinit var layout : RelativeLayout
@@ -71,7 +72,13 @@ class MainActivity : AppCompatActivity() {
         layout = findViewById(R.id.root_layout)
         layout.setBackgroundColor(if (isDarkMode) Color.BLACK else Color.WHITE)
         imageView.setImageResource(if (isDarkMode) R.drawable.logo_dark else R.drawable.logo_white)
-        
+        leaderboardButton = findViewById<Button>(R.id.leaderboard_button)
+
+        leaderboardButton.setOnClickListener{
+            val intent = android.content.Intent(this, EndActivity::class.java)
+            startActivity(intent)
+        }
+
         playButton.setOnClickListener {
             val intent = android.content.Intent(this, GameActivity::class.java)
             startActivity(intent)
